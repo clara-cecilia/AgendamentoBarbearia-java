@@ -5,11 +5,12 @@ import DAO.AgendamentoDAO; // Nosso DAO
 import DTO.AgendamentoDTO; // Nosso DTO
 import javax.swing.JOptionPane;
 import java.sql.Timestamp; // Para converter a data/hora
+import java.util.Date;
 
 public class CadastrarAgendamento extends javax.swing.JFrame{
     private JTextField txtCliente;
     private JComboBox cbServico;
-    private JTextField txtDataHora;
+    private JSpinner spinnerDataHora;
     private JButton btnCadastrar;
     private JButton btnLimpar;
     private JPanel painel2;
@@ -32,6 +33,13 @@ public class CadastrarAgendamento extends javax.swing.JFrame{
         // 5. CENTRALIZA A TELA E DEFINE O TÍTULO
         this.setLocationRelativeTo(null);
         this.setTitle("Novo Agendamento");
+        SpinnerDateModel model = new SpinnerDateModel();
+        spinnerDataHora.setModel(model);
+        // Define o formato de exibição
+        JSpinner.DateEditor editor = new JSpinner.DateEditor(spinnerDataHora, "dd-MM-yyyy HH:mm:ss");
+        spinnerDataHora.setEditor(editor);
+        // Define a data/hora atual como valor inicial
+        spinnerDataHora.setValue(new Date());
 
 
         // Vamos popular o ComboBox de Serviços
@@ -58,10 +66,8 @@ public class CadastrarAgendamento extends javax.swing.JFrame{
      */
     private void cadastrar() {
         // --- VALIDAÇÃO DE CAMPOS ---
-        // Este é um requisito obrigatório da atividade (0,5 pontos)
-
-        if (txtCliente.getText().isEmpty() || txtDataHora.getText().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Cliente e Data/Hora são obrigatórios!", "Erro de Validação", JOptionPane.ERROR_MESSAGE);
+        if (txtCliente.getText().isEmpty()) { // BASTA CHECAR O CLIENTE
+            JOptionPane.showMessageDialog(this, "O nome do Cliente é obrigatório!", "Erro de Validação", JOptionPane.ERROR_MESSAGE);
             return; // Para a execução
         }
 
@@ -69,19 +75,18 @@ public class CadastrarAgendamento extends javax.swing.JFrame{
         objagendamento.setNome_cliente(txtCliente.getText());
         objagendamento.setServico((String) cbServico.getSelectedItem());
 
-        // Converter a String de data/hora para Timestamp
+        // Converter a Date do Spinner para Timestamp
         try {
-            // Exige formato: YYYY-MM-DD HH:MM:SS
-            String dataHoraTexto = txtDataHora.getText();
-            if (!dataHoraTexto.contains(" ")) {
-                dataHoraTexto += " 00:00:00"; // Adiciona hora padrão se não houver
-            }
-            objagendamento.setData_hora(Timestamp.valueOf(dataHoraTexto));
+            // 1. Pega o valor do spinner (é um java.util.Date)
+            Date dataSelecionada = (Date) spinnerDataHora.getValue();
 
-        } catch (IllegalArgumentException e) {
+            // 2. Converte para java.sql.Timestamp
+            objagendamento.setData_hora(new Timestamp(dataSelecionada.getTime()));
+
+        } catch (Exception e) {
             JOptionPane.showMessageDialog(this,
-                    "Formato de Data e Hora inválido.\nUse: YYYY-MM-DD HH:MM:SS",
-                    "Erro de Formato", JOptionPane.ERROR_MESSAGE);
+                    "Erro ao ler a data do spinner: " + e.getMessage(),
+                    "Erro", JOptionPane.ERROR_MESSAGE);
             return; // Para a execução
         }
 
@@ -105,9 +110,9 @@ public class CadastrarAgendamento extends javax.swing.JFrame{
      */
     private void limparCampos() {
         txtCliente.setText("");
-        txtDataHora.setText("");
-        cbServico.setSelectedIndex(0); // Volta para "Corte"
-        txtCliente.requestFocus(); // Foca no campo de cliente
+        spinnerDataHora.setValue(new Date()); // Reseta para data/hora atual
+        cbServico.setSelectedIndex(0);
+        txtCliente.requestFocus();
     }
 
 

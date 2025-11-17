@@ -7,6 +7,7 @@ import DTO.AgendamentoDTO;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 public class MenuPrincipal extends javax.swing.JFrame {
@@ -123,6 +124,58 @@ public class MenuPrincipal extends javax.swing.JFrame {
                 return column != 0; // ID (coluna 0) não é editável
             }
         });
+        // 1. Pega o modelo da coluna "Status"
+        javax.swing.table.TableColumn statusColumn = tbPesquisa.getColumnModel().getColumn(4);
+
+        // 2. Cria o ComboBox com as opções do seu banco de dados
+        javax.swing.JComboBox<String> comboBoxStatus = new javax.swing.JComboBox<>();
+        comboBoxStatus.addItem("Agendado");
+        comboBoxStatus.addItem("Concluído");
+        comboBoxStatus.addItem("Cancelado");
+
+        // 3. Define o ComboBox como o editor padrão para aquela coluna
+        statusColumn.setCellEditor(new javax.swing.DefaultCellEditor(comboBoxStatus));
+        // Define o editor para a coluna "Data e Hora" (que está no índice 3)
+        javax.swing.table.TableColumn dataColumn = tbPesquisa.getColumnModel().getColumn(3);
+
+        // 1. Cria um JSpinner para usar como editor
+        JSpinner spinnerData = new JSpinner(new SpinnerDateModel());
+        JSpinner.DateEditor dateEditor = new JSpinner.DateEditor(spinnerData, "dd-mm-yyyy HH:mm:ss");
+        spinnerData.setEditor(dateEditor);
+
+        // 2. Cria um CellEditor customizado que usa o JSpinner
+        javax.swing.DefaultCellEditor dateCellEditor = new javax.swing.DefaultCellEditor(new JCheckBox()) {
+
+            // Este método é chamado quando você começa a editar a célula
+            @Override
+            public java.awt.Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+                // O valor da tabela (value) é um Timestamp.
+                // Precisamos convertê-lo para um Date para o JSpinner entender.
+                if (value instanceof Timestamp) {
+                    spinnerData.setValue(new Date(((Timestamp) value).getTime()));
+                } else {
+                    // Valor padrão se a célula for nula ou inválida
+                    spinnerData.setValue(new Date());
+                }
+
+                // O importante é aqui: retornamos o *nosso* JSpinner,
+                // e não o JCheckBox "falso" que passamos no construtor.
+                return spinnerData;
+            }
+
+            // Este método é chamado quando você para de editar a célula
+            @Override
+            public Object getCellEditorValue() {
+                // O valor do spinner (spinnerData.getValue()) é um Date.
+                // Precisamos convertê-lo de volta para Timestamp para salvar na tabela/banco.
+                Date date = (Date) spinnerData.getValue();
+                return new Timestamp(date.getTime());
+            }
+        };
+
+        // 3. Define o editor customizado para a coluna de Data/Hora
+        dataColumn.setCellEditor(dateCellEditor);
+
     }
 
     /**
