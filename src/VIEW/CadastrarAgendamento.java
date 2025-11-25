@@ -65,10 +65,12 @@ public class CadastrarAgendamento extends javax.swing.JFrame{
      * Baseado no 'BtnCadastrarActionPerformed' do exemplo [cite: 308-320].
      */
     private void cadastrar() {
+        AgendamentoDTO obj = new AgendamentoDTO();
+        obj.setNome_cliente(txtCliente.getText());
         // --- VALIDAÇÃO DE CAMPOS ---
-        if (txtCliente.getText().isEmpty()) { // BASTA CHECAR O CLIENTE
-            JOptionPane.showMessageDialog(this, "O nome do Cliente é obrigatório!", "Erro de Validação", JOptionPane.ERROR_MESSAGE);
-            return; // Para a execução
+        if (!obj.isValido()) { // Agora a View só pergunta, não decide
+            JOptionPane.showMessageDialog(this, "Dados inválidos!");
+            return;
         }
 
         AgendamentoDTO objagendamento = new AgendamentoDTO();

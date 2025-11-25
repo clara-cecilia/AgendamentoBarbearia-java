@@ -10,6 +10,10 @@ public class AgendamentoDTO {
     private Timestamp data_hora;
     private String status;
 
+    public boolean isValido() {
+        return this.nome_cliente != null && !this.nome_cliente.isEmpty();
+    }
+
 
     public int getId() {
         return id;
