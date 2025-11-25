@@ -67,15 +67,12 @@ public class CadastrarAgendamento extends javax.swing.JFrame{
     private void cadastrar() {
         AgendamentoDTO obj = new AgendamentoDTO();
         obj.setNome_cliente(txtCliente.getText());
-        // --- VALIDAÇÃO DE CAMPOS ---
+        // Valida o próprio objeto que será usado
         if (!obj.isValido()) { // Agora a View só pergunta, não decide
             JOptionPane.showMessageDialog(this, "Dados inválidos!");
             return;
         }
-
-        AgendamentoDTO objagendamento = new AgendamentoDTO();
-        objagendamento.setNome_cliente(txtCliente.getText());
-        objagendamento.setServico((String) cbServico.getSelectedItem());
+        obj.setServico((String) cbServico.getSelectedItem());
 
         // Converter a Date do Spinner para Timestamp
         try {
@@ -83,7 +80,7 @@ public class CadastrarAgendamento extends javax.swing.JFrame{
             Date dataSelecionada = (Date) spinnerDataHora.getValue();
 
             // 2. Converte para java.sql.Timestamp
-            objagendamento.setData_hora(new Timestamp(dataSelecionada.getTime()));
+            obj.setData_hora(new Timestamp(dataSelecionada.getTime()));
 
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this,
@@ -95,7 +92,7 @@ public class CadastrarAgendamento extends javax.swing.JFrame{
         // Enviar para o DAO
         try {
             AgendamentoDAO dao = new AgendamentoDAO();
-            dao.cadastrarAgendamento(objagendamento);
+            dao.cadastrarAgendamento(obj);
 
             JOptionPane.showMessageDialog(this, "Agendamento cadastrado com sucesso!");
             limparCampos();
